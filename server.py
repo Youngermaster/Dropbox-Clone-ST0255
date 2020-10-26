@@ -11,7 +11,7 @@ ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 ADDR = (SERVER, PORT)
 DISCONNECT_MESSAGE = "!DISCONNECT"
-ROOT_DIR = os.path.dirname(os.path.abspath("client.py"))
+ROOT_DIR = os.path.dirname(os.path.abspath("client.py")) + "/buckets"
 
 # ! Initialized socket server globally
 # * AF_INET correspond to IPV4
@@ -37,6 +37,10 @@ def handle_client(conn, addr):
 
     conn.close()
 
+# * Starts the socket server
+# @param buckets_path This is the "directory" where will be stored
+#  all the buckets
+
 
 def start(buckets_path):
     server.listen()
@@ -53,10 +57,12 @@ if __name__ == "__main__":
     print("[STARTING] server is starting...")
     # * We create the CLI arguments
     parser = argparse.ArgumentParser(description="Dropbox Clone ST0255")
+
     # * We create the "directory" flag to store all the buckets
     parser.add_argument(
         "-d", "--directory", help="Folder to store all the buckets, the default directory is the project directory",
         default=ROOT_DIR)
+
     args = parser.parse_args()
     buckets_path = args.directory
     start(buckets_path)

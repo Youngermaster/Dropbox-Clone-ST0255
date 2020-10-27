@@ -1,7 +1,7 @@
 import socket
 
 # * Config constatns
-HEADER = 2048
+HEADER = 4096 # send 4096 bytes each time step
 PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -29,9 +29,13 @@ def send(msg):
 
 
 if __name__ == "__main__":
-    send("Hello World!")
-    input()
-    send("Hello Everyone!")
-    input()
-    send("Hello Juan!")
-    send(DISCONNECT_MESSAGE)
+    print(f"[LISTENING] Server is listening on {SERVER}")
+    print(f"[SUCCESS] Succesfully connected to {SERVER}")
+    connected = True
+    while connected:
+        print("Type a command, if you are not sure use !HELP command to get more info:")
+        msg = input()
+        if msg == DISCONNECT_MESSAGE:
+            connected = False
+        else:
+            send(msg)

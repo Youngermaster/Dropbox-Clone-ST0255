@@ -4,13 +4,14 @@ import threading
 import argparse
 
 # * Config constatns
-HEADER = 4096 # send 4096 bytes each time step
-PORT = 5050
+HEADER = 4096  # send 4096 bytes each time step
+PORT = 4040
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 ADDR = (SERVER, PORT)
-ROOT_DIR = os.path.dirname(os.path.abspath("client.py")) + "/buckets"
+ROOT_DIR = os.path.dirname(os.path.abspath("server.py"))
+BUCKETS_FOLDER = "BUCKETS"
 
 # * Commands
 DISCONNECT_MESSAGE = "!DISCONNECT"
@@ -44,16 +45,14 @@ def handle_client(conn, addr):
             msg_length = int(msg_length)
             msg = conn.recv(msg_length).decode(FORMAT)
 
-            if msg == DISCONNECT_MESSAGE:
-                connected = False
-            elif msg == HELP:
+            if msg == HELP:
                 help(conn)
-            elif msg == CREATE_BUCKET:
+            elif CREATE_BUCKET in msg:
                 create_bucket("name")
-            elif msg == CREATE_BUCKET:
+            elif DELETE_BUCKET in msg:
                 delete_bucket("name")
             elif msg == LIST_BUCKETS:
-                list_buckets()
+                list_buckets(conn)
             elif msg == UPLOAD_FILE:
                 upload_file("name")
             elif msg == DELETE_FILE:
@@ -85,7 +84,8 @@ def start(buckets_path):
 
 
 def help(conn):
-    conn.send("Help".encode(FORMAT))
+    help_message = "Help message"
+    conn.send(help_message.encode(FORMAT))
 
 
 def create_bucket(bucket):
@@ -102,14 +102,15 @@ def delete_bucket(bucket):
         print("Bucket created succesfully")
 
 
-def list_buckets():
+def list_buckets(conn):
+    list_of_buckets_message = "j"
     if len(buckets) == 0:
-        print("There isn't any buckets")
-        print(
-            f"If you want to create one bucket use the following command {CREATE_BUCKET}")
+        list_of_buckets_message = "There isn't any buckets\n"
+        list_of_buckets_message += f"If you want to create one bucket use the following command {CREATE_BUCKET}"
     else:
-        pass
-    print(f"List of buckets:\n{buckets}")
+        list_of_buckets_message = f"List of buckets:\n{os.listdir()}"
+
+    conn.send(list_of_buckets_message.encode(FORMAT))
 
 
 def upload_file(bucket_owner):
@@ -140,4 +141,19 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     buckets_path = args.directory
+
+    # Path
+    dir_path = os.path.join(buckets_path, BUCKETS_FOLDER)
+
+    # Create the directory
+    # 'buckets'
+    try:
+        os.rmdir(dir_path)
+    except OSError as e:
+        print("Error: %s : %s" % (dir_path, e.strerror))
+    try:
+        os.makedirs(dir_path, exist_ok=True)
+        print("Bucket directory '%s' created successfully" % BUCKETS_FOLDER)
+    except OSError as error:
+        print("Bucket directory '%s' can not be created" % BUCKETS_FOLDER)
     start(buckets_path)

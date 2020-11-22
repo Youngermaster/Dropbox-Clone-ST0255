@@ -1,8 +1,8 @@
 import socket
 
 # * Config constatns
-HEADER = 4096 # send 4096 bytes each time step
-PORT = 5050
+HEADER = 4096  # send 4096 bytes each time step
+PORT = 4040
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 # ! If you run the code from different machines on the same network
@@ -37,5 +37,6 @@ if __name__ == "__main__":
         msg = input()
         if msg == DISCONNECT_MESSAGE:
             connected = False
+            client.close()
         else:
             send(msg)
